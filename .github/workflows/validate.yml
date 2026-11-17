@@ -1,0 +1,27 @@
+# Every suite edit is checked against its hidden oracles: each candidate's
+# label must agree with its oracle, and each oracle must fail at the
+# baseline (pass, for a refactor). This runs no experiment and makes no
+# number; it keeps the suites honest.
+name: validate
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: EMI and the suites' test tools
+        run: pip install -q "emicode==0.1.1" "pytest>=8,<9" "hypothesis>=6,<7" "coverage>=7.9,<8"
+      - run: python -m emi_evals validate
